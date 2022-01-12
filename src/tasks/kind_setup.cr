@@ -52,6 +52,13 @@ task "uninstall_kind" do |_, args|
   FileUtils.rm_rf("#{current_dir}/#{TOOLS_DIR}/kind")
 end
 
+# USAGE:
+#
+# To create a kind cluster called hello, with no kind config
+#
+#     kind_manager = KindManager.new
+#     kind_manager.create_cluster("hello", nil, false)
+#
 class KindManager
   # Project root based on which tools dir would be determined
   property project_root : String
@@ -82,12 +89,13 @@ class KindManager
     end
 
     unless File.exists?("#{kubeconfig}")
-      # Add --verbosity 100 to debug kind issues
-      # Use --retain to retain the cluster incase there is an error with bringing it up
+      # Debug notes:
+      # * Add --verbosity 100 to debug kind issues.
+      # * Use --retain to retain cluster incase there is an error with creation.
       cmd = "#{kind} create cluster --name #{name} #{kind_config_opt} --image kindest/node:v#{k8s_version} --kubeconfig #{kubeconfig}"
       if offline
         ShellCmd.run(cmd, "KindManager#create_cluster(offline)")
-      else        
+      else
         ShellCmd.run(cmd, "KindManager#create_cluster(online)")
       end
     end
